@@ -4,37 +4,40 @@ import commandLineArgs from "command-line-args";
 import fs from "fs";
 import cliProgress from "cli-progress";
 import { Worker } from "worker_threads";
-import { config, AuditTypes } from "./config.js";
+import { config } from "./config.js";
+import { averageValue } from "./utils.js";
 
-const optionDefinitions = [
+const PERFORMANCE_SCORE_PATH = "categories.performance.score";
+const WORKER_PATH = "./lighthouse-worker.js";
+const BATCH_SIZE = 10;
+
+const CMD_OPTIONS = [
   { name: "url", alias: "u", multiple: true, type: String },
   { name: "help", alias: "h", type: Boolean },
   { name: "iterations", alias: "i", type: Number },
   { name: "outputDir", alias: "o", type: String },
 ];
 
-const BATCH_SIZE = 10;
 const queue = [];
 
-const processQueue = async (options, firstReportList, secondReportList) => {
-  if (!queue.length)
-    return handleExit(options, firstReportList, secondReportList);
+const processQueue = async (options, reportList) => {
+  if (!queue.length) return handleExit(reportList);
   const batch = queue.splice(0, BATCH_SIZE);
-  await Promise.all(batch.map((item) => item()));
-  processQueue(options, firstReportList, secondReportList);
+  await Promise.all(batch.map((workerFunc) => workerFunc()));
+  processQueue(options, reportList);
 };
 
 const main = async () => {
-  const options = commandLineArgs(optionDefinitions);
+  const options = commandLineArgs(CMD_OPTIONS);
   if (!options.url) throw new Error("No URLs provided");
 
-  const firstReportList = [];
-  const secondReportList = [];
+  const reportList = {};
+  options.url.forEach((url) => (reportList[url] = []));
 
   const onWorkerMessage = ({ url, report, id }) => {
-    options.url[0] === url
-      ? firstReportList.push(report)
-      : secondReportList.push(report);
+    if (!report) throw new Error(`Failed to get report for ${url}`);
+
+    reportList[url].push(report);
 
     progress++;
     progressBar.update(progress);
@@ -56,7 +59,7 @@ const main = async () => {
 
   const spawnWorker = async (url, id) => {
     return new Promise((resolve) => {
-      const worker = new Worker("./lighthouse-worker.js", {
+      const worker = new Worker(WORKER_PATH, {
         workerData: {
           url,
           id: id,
@@ -71,7 +74,7 @@ const main = async () => {
   };
 
   console.log(
-    `Running ${options.iterations} iterations on ${options.url.length} URLs...`
+    `Running ${options.iterations} iteration(s) on ${options.url.length} URLs...`
   );
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
@@ -82,51 +85,32 @@ const main = async () => {
       queue.push(() => spawnWorker(url, i));
     }
   }
-  processQueue(options, firstReportList, secondReportList);
+  processQueue(options, reportList);
 };
 
-const handleExit = (options, firstReportList, secondReportList) => {
-  if (!firstReportList.length || !secondReportList.length)
+const handleExit = (reportList) => {
+  if (Object.values(reportList).some((report) => !report))
     throw new Error("No reports found");
 
-  const table = {
-    [options.url[0]]: {},
-    [options.url[1]]: {},
-  };
+  const table = {};
+  Object.keys(reportList).forEach((url) => (table[url] = []));
 
-  for (const auditType of config) {
-    const [firstReport, secondReport] = averageValues(
-      firstReportList,
-      secondReportList,
-      `audits.${auditType.id}.numericValue`
+  for (const url of Object.keys(reportList)) {
+    const performanceScore = averageValue(
+      reportList[url],
+      PERFORMANCE_SCORE_PATH
     );
-    table[options.url[0]][auditType.id] = auditType.toString(firstReport);
-    table[options.url[1]][auditType.id] = auditType.toString(secondReport);
+    table[url]["Performance Score"] = performanceScore * 100;
+    for (const auditType of config) {
+      const reportAvg = averageValue(
+        reportList[url],
+        `audits.${auditType.id}.numericValue`
+      );
+      table[url][auditType.displayName] = auditType.toString(reportAvg);
+    }
   }
 
   console.table(table);
-};
-
-const findJsonPath = (json, path) => {
-  return path.split(".").reduce((acc, curr) => {
-    if (!acc) throw new Error(`Failed to index into ${curr}`);
-    return acc[curr];
-  }, json);
-};
-
-const averageValues = (firstReport, secondReport, path) => {
-  if (!findJsonPath(firstReport[0], path))
-    throw new Error(`Failed to index into ${path}`);
-  const firstReportList = firstReport.reduce((acc, curr) => {
-    return acc + findJsonPath(curr, path);
-  }, 0);
-  const secondReportList = secondReport.reduce((acc, curr) => {
-    return acc + findJsonPath(curr, path);
-  }, 0);
-  const firstReportAvg = firstReportList / firstReport.length;
-  const secondReportAvg = secondReportList / secondReport.length;
-
-  return [firstReportAvg, secondReportAvg];
 };
 
 main();

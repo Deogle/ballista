@@ -1,4 +1,4 @@
-import { getLighthouseReport } from "./lighthouse-util.js";
+import { getLighthouseReport } from "./lighthouse-runner.js";
 import { parentPort, workerData } from "worker_threads";
 
 (async () => {

@@ -30,7 +30,7 @@ const config = [
   {
     id: AuditTypes.CUMULATIVE_LAYOUT_SHIFT,
     displayName: "Cumulative Layout Shift",
-    toString: (value) => `${value}`,
+    toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
 ];
 

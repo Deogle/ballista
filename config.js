@@ -1,41 +1,41 @@
 const AuditTypes = Object.freeze({
   PERFORMANCE: "categories.performance.score",
-  FIRST_CONTENTFUL_PAINT: "first-contentful-paint",
-  FIRST_MEANINGFUL_PAINT: "first-meaningful-paint",
-  SPEED_INDEX: "speed-index",
-  INTERACTIVE: "interactive",
-  CUMULATIVE_LAYOUT_SHIFT: "cumulative-layout-shift",
+  FIRST_CONTENTFUL_PAINT: "audits.first-contentful-paint.numericValue",
+  FIRST_MEANINGFUL_PAINT: "audits.first-meaningful-paint.numericValue",
+  SPEED_INDEX: "audits.speed-index.numericValue",
+  INTERACTIVE: "audits.interactive.numericValue",
+  CUMULATIVE_LAYOUT_SHIFT: "audits.cumulative-layout-shift.numericValue",
 });
 
 const config = [
   {
-    id: AuditTypes.PERFORMANCE,
+    path: AuditTypes.PERFORMANCE,
     displayName: "Performance Score (avg)",
     toString: (value) => `${(value * 100).toFixed(0)}`,
     absolutePath: true,
   },
   {
-    id: AuditTypes.FIRST_CONTENTFUL_PAINT,
+    path: AuditTypes.FIRST_CONTENTFUL_PAINT,
     displayName: "First Contentful Paint (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   {
-    id: AuditTypes.FIRST_MEANINGFUL_PAINT,
+    path: AuditTypes.FIRST_MEANINGFUL_PAINT,
     displayName: "First Meaningful Paint (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   {
-    id: AuditTypes.SPEED_INDEX,
+    path: AuditTypes.SPEED_INDEX,
     displayName: "Speed Index (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   {
-    id: AuditTypes.INTERACTIVE,
+    path: AuditTypes.INTERACTIVE,
     displayName: "Time to Interactive (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   {
-    id: AuditTypes.CUMULATIVE_LAYOUT_SHIFT,
+    path: AuditTypes.CUMULATIVE_LAYOUT_SHIFT,
     displayName: "Cumulative Layout Shift (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },

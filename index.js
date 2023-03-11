@@ -27,7 +27,7 @@ const processQueue = async (options, reportList) => {
   if (!queue.length) return handleExit(reportList);
   const batch = queue.splice(0, BATCH_SIZE);
   await Promise.all(batch.map((workerFunc) => workerFunc()));
-  progress += batch.length;
+  progress += BATCH_SIZE;
   progressBar.update(progress);
   processQueue(options, reportList);
 };
@@ -41,13 +41,7 @@ const main = async () => {
 
   const onWorkerMessage = ({ url, report, id }) => {
     if (!report) throw new Error(`Failed to get report for ${url}`);
-
     reportList[url].push(report);
-
-    if (progress === options.iterations * options.url.length) {
-      progressBar.stop();
-    }
-
     options.outputDir && writeReport(report, url, id);
   };
 
@@ -65,7 +59,7 @@ const main = async () => {
         workerData: {
           url,
           id: id,
-          auditTypes: config.map((auditType) => auditType.id),
+          auditTypes: config.map((auditType) => auditType.path),
         },
       });
       worker.on("message", (data) => {
@@ -91,23 +85,23 @@ const main = async () => {
 };
 
 const handleExit = (reportList) => {
+  progressBar.stop();
   if (Object.values(reportList).some((report) => !report))
     throw new Error("No reports found");
 
-  const table = {};
-  Object.keys(reportList).forEach((url) => (table[url] = []));
+  const table = Object.keys(reportList).reduce((prevObj, url) => {
+    prevObj[url] = {};
+    return prevObj;
+  }, {});
 
-  for (const url of Object.keys(reportList)) {
-    table[url]["Performance Score"] = (performanceScore * 100).toFixed(0);
-    for (const auditType of config) {
-      const reportAvg = averageValue(
-        reportList[url],
-        auditType.absolutePath
-          ? auditType.id
-          : `audits.${auditType.id}.numericValue`
-      );
+  const columns = config.map((auditType) => auditType.displayName);
+
+  for (const auditType of config) {
+    Object.entries(reportList).forEach(([url, report]) => {
+      const reportAvg = averageValue(report, auditType.path);
       table[url][auditType.displayName] = auditType.toString(reportAvg);
-    }
+      columns[auditType.displayName] = reportAvg;
+    });
   }
 
   console.table(table);

@@ -15,5 +15,6 @@
     "chrome-launcher": "^0.15.1",
     "cli-progress": "^3.12.0",
     "command-line-args": "^5.2.1"
-  }
+  },
+  "bin": "index.js"
 }

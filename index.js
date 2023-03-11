@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import commandLineArgs from "command-line-args";
 import fs from "fs";
 import cliProgress from "cli-progress";

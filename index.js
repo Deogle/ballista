@@ -7,7 +7,7 @@ import { Worker } from "worker_threads";
 import { config } from "./config.js";
 import { averageValue } from "./utils.js";
 
-const PERFORMANCE_SCORE_PATH = "categories.performance.score";
+const TIMER_ID = "lighthouse-batch";
 const WORKER_PATH = "./lighthouse-worker.js";
 const BATCH_SIZE = 10;
 
@@ -19,11 +19,14 @@ const CMD_OPTIONS = [
 ];
 
 const queue = [];
+const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
 
 const processQueue = async (options, reportList) => {
   if (!queue.length) return handleExit(reportList);
   const batch = queue.splice(0, BATCH_SIZE);
   await Promise.all(batch.map((workerFunc) => workerFunc()));
+  progress += batch.length;
+  progressBar.update(progress);
   processQueue(options, reportList);
 };
 
@@ -38,9 +41,6 @@ const main = async () => {
     if (!report) throw new Error(`Failed to get report for ${url}`);
 
     reportList[url].push(report);
-
-    progress++;
-    progressBar.update(progress);
 
     if (progress === options.iterations * options.url.length) {
       progressBar.stop();
@@ -73,10 +73,11 @@ const main = async () => {
     });
   };
 
+  console.time(TIMER_ID);
   console.log(
     `Running ${options.iterations} iteration(s) on ${options.url.length} URLs...`
   );
-  const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
+
   let progress = 0;
   progressBar.start(options.iterations * options.url.length, progress);
 
@@ -96,21 +97,20 @@ const handleExit = (reportList) => {
   Object.keys(reportList).forEach((url) => (table[url] = []));
 
   for (const url of Object.keys(reportList)) {
-    const performanceScore = averageValue(
-      reportList[url],
-      PERFORMANCE_SCORE_PATH
-    );
-    table[url]["Performance Score"] = performanceScore * 100;
+    table[url]["Performance Score"] = (performanceScore * 100).toFixed(0);
     for (const auditType of config) {
       const reportAvg = averageValue(
         reportList[url],
-        `audits.${auditType.id}.numericValue`
+        auditType.absolutePath
+          ? auditType.id
+          : `audits.${auditType.id}.numericValue`
       );
       table[url][auditType.displayName] = auditType.toString(reportAvg);
     }
   }
 
   console.table(table);
+  console.timeEnd(TIMER_ID);
 };
 
 main();

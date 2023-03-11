@@ -19,7 +19,9 @@ const CMD_OPTIONS = [
 ];
 
 const queue = [];
+
 const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
+let progress = 0;
 
 const processQueue = async (options, reportList) => {
   if (!queue.length) return handleExit(reportList);
@@ -78,7 +80,6 @@ const main = async () => {
     `Running ${options.iterations} iteration(s) on ${options.url.length} URLs...`
   );
 
-  let progress = 0;
   progressBar.start(options.iterations * options.url.length, progress);
 
   for (const url of options.url) {

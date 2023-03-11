@@ -1,0 +1,19 @@
+{
+  "name": "ballista",
+  "version": "0.1.0",
+  "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Dylan Ogle",
+  "license": "MIT",
+  "dependencies": {
+    "lighthouse": "^10.0.1",
+    "chrome-launcher": "^0.15.1",
+    "cli-progress": "^3.12.0",
+    "command-line-args": "^5.2.1"
+  }
+}

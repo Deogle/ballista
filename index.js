@@ -4,11 +4,11 @@ import commandLineArgs from "command-line-args";
 import fs from "fs";
 import cliProgress from "cli-progress";
 import { Worker } from "worker_threads";
-import { config } from "./config.js";
+import { config } from "./types/config.js";
 import { averageValue } from "./utils.js";
 
 const TIMER_ID = "lighthouse-batch";
-const WORKER_PATH = "./lighthouse-worker.js";
+const WORKER_PATH = "./worker/lighthouse-worker.js";
 const BATCH_SIZE = 10;
 
 const CMD_OPTIONS = [
@@ -59,7 +59,7 @@ const main = async () => {
         workerData: {
           url,
           id: id,
-          auditTypes: config.map((auditType) => auditType.path),
+          metricList: config.map((metric) => metric.path),
         },
       });
       worker.on("message", (data) => {

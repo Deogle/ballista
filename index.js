@@ -4,11 +4,11 @@ import commandLineArgs from "command-line-args";
 import fs from "fs";
 import cliProgress from "cli-progress";
 import { Worker } from "worker_threads";
-import { config } from "./types/config.js";
+import { config } from "./src/types/config.js";
 import { averageValue } from "./utils.js";
 
 const TIMER_ID = "lighthouse-batch";
-const WORKER_PATH = "./worker/lighthouse-worker.js";
+const WORKER_PATH = "./src/worker/lighthouse-worker.js";
 const BATCH_SIZE = 10;
 
 const CMD_OPTIONS = [

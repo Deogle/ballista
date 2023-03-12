@@ -1,22 +1,21 @@
 class BatchQueue {
-  constructor({ onExit, onBatchProcessed }) {
+  constructor({ batchSize, onExit, onBatchProcessed }) {
     this.queue = [];
     this.onExit = onExit;
     this.onBatchProcessed = onBatchProcessed;
+    this.batchSize = batchSize;
   }
   enqueue(item) {
-    this.list.push(item);
+    this.queue.push(item);
   }
-  async processQueue(batchSize) {
-    if (!this.list.length) return this.onExit();
+  async processQueue() {
+    if (!this.queue.length) return this.onExit();
 
-    const batch = this.list.splice(0, batchSize);
-    await Promise.all(
-      batch.forEach((queueItemFunction) => queueItemFunction())
-    );
+    const batch = this.queue.splice(0, this.batchSize);
+    await Promise.all(batch.map((queueItemFunction) => queueItemFunction()));
     if (this.onBatchProcessed) this.onBatchProcessed();
 
-    this.processQueue(batchSize);
+    return this.processQueue();
   }
 }
 

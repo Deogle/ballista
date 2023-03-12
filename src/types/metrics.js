@@ -18,32 +18,38 @@ const MetricNames = Object.freeze({
 
 const MetricsConfigs = Object.freeze({
   [MetricNames.PERFORMANCE]: {
+    name: MetricNames.PERFORMANCE,
     path: MetricPaths.PERFORMANCE,
     displayName: "Performance Score (avg)",
     toString: (value) => `${(value * 100).toFixed(0)}`,
     absolutePath: true,
   },
   [MetricNames.FIRST_CONTENTFUL_PAINT]: {
+    name: MetricNames.FIRST_CONTENTFUL_PAINT,
     path: MetricPaths.FIRST_CONTENTFUL_PAINT,
     displayName: "First Contentful Paint (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   [MetricNames.FIRST_MEANINGFUL_PAINT]: {
+    name: MetricNames.FIRST_MEANINGFUL_PAINT,
     path: MetricPaths.FIRST_MEANINGFUL_PAINT,
     displayName: "First Meaningful Paint (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   [MetricNames.SPEED_INDEX]: {
+    name: MetricNames.SPEED_INDEX,
     path: MetricPaths.SPEED_INDEX,
     displayName: "Speed Index (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   [MetricNames.INTERACTIVE]: {
+    name: MetricNames.INTERACTIVE,
     path: MetricPaths.INTERACTIVE,
     displayName: "Time to Interactive (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,
   },
   [MetricNames.CUMULATIVE_LAYOUT_SHIFT]: {
+    name: MetricNames.CUMULATIVE_LAYOUT_SHIFT,
     path: MetricPaths.CUMULATIVE_LAYOUT_SHIFT,
     displayName: "Cumulative Layout Shift (avg)",
     toString: (value) => `${(value / 1000).toFixed(5)} s`,

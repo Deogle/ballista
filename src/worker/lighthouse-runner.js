@@ -1,7 +1,7 @@
 import lighthouse from "lighthouse";
 import chromeLauncher from "chrome-launcher";
 
-export const getLighthouseReport = async (url, auditValues) => {
+export const getLighthouseReport = async (url, metricList) => {
   const chrome = await chromeLauncher.launch({
     chromeFlags: ["--headless", "--disable-gpu", "--no-sandbox"],
   });
@@ -16,7 +16,7 @@ export const getLighthouseReport = async (url, auditValues) => {
   const config = {
     extends: "lighthouse:default",
     settings: {
-      onlyAudits: auditValues,
+      onlyAudits: metricList,
     },
   };
   const runnerResult = await lighthouse(url, options, config);

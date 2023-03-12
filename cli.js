@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import commandLineArgs from "command-line-args";
-import fs from "fs";
 import cliProgress from "cli-progress";
 import { Ballista } from "./src/ballista.js";
 import { config } from "./src/types/config.js";

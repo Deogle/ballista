@@ -1,5 +1,5 @@
 {
-  "name": "ballista",
+  "name": "@deogle/ballista",
   "version": "0.1.0",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
@@ -16,5 +16,16 @@
     "cli-progress": "^3.12.0",
     "command-line-args": "^5.2.1"
   },
-  "bin": "cli.js"
+  "bin": {
+    "ballista": "cli.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deogle/ballista.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Deogle/ballista/issues"
+  },
+  "homepage": "https://github.com/Deogle/ballista#readme"
 }

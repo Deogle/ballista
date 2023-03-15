@@ -29,6 +29,10 @@ const TIMER_ID = "lighthouse-batch";
     urlList: options.url,
     iterations: options.iterations,
     metricList: config,
+    onBatchProcessed: (batch) => {
+      progress += batch.length;
+      progressBar.update(progress);
+    },
   });
 
   const { reports, averagedReports } = await ballistaInstance.run();

@@ -13,7 +13,7 @@ class BatchQueue {
 
     const batch = this.queue.splice(0, this.batchSize);
     await Promise.all(batch.map((queueItemFunction) => queueItemFunction()));
-    if (this.onBatchProcessed) this.onBatchProcessed();
+    if (this.onBatchProcessed) this.onBatchProcessed(batch);
 
     return this.processQueue();
   }

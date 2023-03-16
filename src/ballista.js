@@ -26,7 +26,7 @@ class Ballista {
     }, {});
 
     this.batchSize = batchSize || 10;
-    this.iterations = iterations;
+    this.iterations = iterations || 10;
     this.metricList = metricList;
     this.outputWriter = outputWriter;
     this.onBatchProcessed = onBatchProcessed;

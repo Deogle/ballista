@@ -27,7 +27,7 @@ function calculateComparison(averagedReports) {
 
   for (const [url, report] of Object.entries(comparisonReport)) {
     if (url.includes("baseline")) continue;
-    for (const metric of this.metricList) {
+    for (const metric of config) {
       const metricName = metric.displayName;
 
       const baselineValue = Number(
@@ -45,14 +45,11 @@ function calculateComparison(averagedReports) {
     }
   }
 
-  console.log(comparisonReport);
-
   return comparisonReport;
 }
 
 (async () => {
   const options = commandLineArgs(CMD_OPTIONS);
-  console.log(options);
   if (!options.url) throw new Error("No URLs provided");
 
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
@@ -67,7 +64,6 @@ function calculateComparison(averagedReports) {
   const ballistaInstance = new Ballista({
     urlList: options.url,
     iterations: options.iterations,
-    isComparisonModeEnabled: options.comparison,
     metricList: config,
     onBatchProcessed: (batch) => {
       progress += batch.length;
@@ -77,15 +73,10 @@ function calculateComparison(averagedReports) {
 
   const { averagedReports } = await ballistaInstance.run();
 
-  if (options.isComparisonModeEnabled) {
-  }
-
   progressBar.stop();
   console.timeEnd(TIMER_ID);
 
   console.table(
-    options.isComparisonModeEnabled
-      ? calculateComparison(averagedReports)
-      : averagedReports
+    options.comparison ? calculateComparison(averagedReports) : averagedReports
   );
 })();

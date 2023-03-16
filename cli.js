@@ -15,8 +15,6 @@ const CMD_OPTIONS = [
 ];
 const TIMER_ID = "lighthouse-batch";
 
-const options = commandLineArgs(CMD_OPTIONS);
-
 function calculateComparison(averagedReports) {
   const key = Object.keys(averagedReports)[0];
   const baselineObject = { [`${key} (baseline)`]: averagedReports[key] };
@@ -58,7 +56,7 @@ async function printVersion() {
   return;
 }
 
-async function main() {
+async function main(options) {
   if (!options.url) throw new Error("No URLs provided");
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
@@ -90,6 +88,7 @@ async function main() {
 }
 
 (async () => {
+  const options = commandLineArgs(CMD_OPTIONS);
   if (options.version) return await printVersion();
-  main();
+  main(options);
 })();

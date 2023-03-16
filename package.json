@@ -1,6 +1,6 @@
 {
   "name": "@deogle/ballista",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
   "main": "cli.js",

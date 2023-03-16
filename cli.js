@@ -9,11 +9,50 @@ const CMD_OPTIONS = [
   { name: "url", alias: "u", multiple: true, type: String },
   { name: "iterations", alias: "i", type: Number },
   { name: "outputDir", alias: "o", type: String },
+  { name: "comparison", alias: "c", type: Boolean },
 ];
 const TIMER_ID = "lighthouse-batch";
 
+function calculateComparison(averagedReports) {
+  const key = Object.keys(averagedReports)[0];
+  const baselineObject = { [`${key} (baseline)`]: averagedReports[key] };
+
+  const comparisonReport = {
+    ...baselineObject,
+    ...averagedReports,
+  };
+  delete comparisonReport[key];
+
+  const baselineValues = comparisonReport[Object.keys(comparisonReport)[0]];
+
+  for (const [url, report] of Object.entries(comparisonReport)) {
+    if (url.includes("baseline")) continue;
+    for (const metric of this.metricList) {
+      const metricName = metric.displayName;
+
+      const baselineValue = Number(
+        baselineValues[metric.displayName].split(" ")[0]
+      );
+      if (isNaN(baselineValue)) {
+        continue;
+      }
+      const currentValue = Number(report[metricName].split(" ")[0]);
+      const difference = currentValue - baselineValue;
+      const differenceString = `${comparisonReport[url][metricName]} (${
+        difference > 0 ? "+" : ""
+      }${difference.toFixed(2)})`;
+      comparisonReport[url][metricName] = differenceString;
+    }
+  }
+
+  console.log(comparisonReport);
+
+  return comparisonReport;
+}
+
 (async () => {
   const options = commandLineArgs(CMD_OPTIONS);
+  console.log(options);
   if (!options.url) throw new Error("No URLs provided");
 
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
@@ -28,6 +67,7 @@ const TIMER_ID = "lighthouse-batch";
   const ballistaInstance = new Ballista({
     urlList: options.url,
     iterations: options.iterations,
+    isComparisonModeEnabled: options.comparison,
     metricList: config,
     onBatchProcessed: (batch) => {
       progress += batch.length;
@@ -37,8 +77,15 @@ const TIMER_ID = "lighthouse-batch";
 
   const { averagedReports } = await ballistaInstance.run();
 
+  if (options.isComparisonModeEnabled) {
+  }
+
   progressBar.stop();
   console.timeEnd(TIMER_ID);
 
-  console.table(averagedReports);
+  console.table(
+    options.isComparisonModeEnabled
+      ? calculateComparison(averagedReports)
+      : averagedReports
+  );
 })();

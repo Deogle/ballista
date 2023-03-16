@@ -4,12 +4,14 @@ import commandLineArgs from "command-line-args";
 import cliProgress from "cli-progress";
 import { Ballista } from "./src/ballista.js";
 import { config } from "./src/types/config.js";
+import fs from "fs";
 
 const CMD_OPTIONS = [
   { name: "url", alias: "u", multiple: true, type: String },
   { name: "iterations", alias: "i", type: Number },
   { name: "outputDir", alias: "o", type: String },
   { name: "comparison", alias: "c", type: Boolean },
+  { name: "version", alias: "v", type: Boolean },
 ];
 const TIMER_ID = "lighthouse-batch";
 
@@ -48,10 +50,14 @@ function calculateComparison(averagedReports) {
   return comparisonReport;
 }
 
-(async () => {
-  const options = commandLineArgs(CMD_OPTIONS);
-  if (!options.url) throw new Error("No URLs provided");
+async function printVersion() {
+  const { version } = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+  console.log(`v${version}`);
+  return;
+}
 
+async function main() {
+  if (!options.url) throw new Error("No URLs provided");
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
 
@@ -79,4 +85,10 @@ function calculateComparison(averagedReports) {
   console.table(
     options.comparison ? calculateComparison(averagedReports) : averagedReports
   );
+}
+
+(async () => {
+  const options = commandLineArgs(CMD_OPTIONS);
+  if (options.version) return await printVersion();
+  main();
 })();

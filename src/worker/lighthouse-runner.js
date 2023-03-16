@@ -1,4 +1,5 @@
 import lighthouse from "lighthouse";
+import * as lighthouseConstants from "lighthouse/core/config/constants.js";
 import chromeLauncher from "chrome-launcher";
 
 export const getLighthouseReport = async (url, metricList) => {
@@ -8,15 +9,15 @@ export const getLighthouseReport = async (url, metricList) => {
 
   const options = {
     output: "json",
-    onlyCategories: ["performance"],
     port: chrome.port,
-    disableDeviceEmulation: true,
   };
 
   const config = {
     extends: "lighthouse:default",
     settings: {
-      onlyAudits: metricList,
+      formFactor: "desktop",
+      screenEmulation: lighthouseConstants.screenEmulationMetrics.desktop,
+      throttling: lighthouseConstants.throttling.desktopDense4G,
     },
   };
   const runnerResult = await lighthouse(url, options, config);

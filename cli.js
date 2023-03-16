@@ -77,14 +77,21 @@ async function main(options) {
     },
   });
 
-  const { averagedReports } = await ballistaInstance.run();
+  try {
+    const { averagedReports } = await ballistaInstance.run();
+    progressBar.stop();
+    console.timeEnd(TIMER_ID);
 
-  progressBar.stop();
-  console.timeEnd(TIMER_ID);
-
-  console.table(
-    options.comparison ? calculateComparison(averagedReports) : averagedReports
-  );
+    console.table(
+      options.comparison
+        ? calculateComparison(averagedReports)
+        : averagedReports
+    );
+  } catch (error) {
+    progressBar.stop();
+    console.timeEnd(TIMER_ID);
+    console.error(error);
+  }
 }
 
 (async () => {

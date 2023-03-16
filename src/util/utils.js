@@ -7,11 +7,12 @@ const getReportProperty = (json, path) => {
 };
 
 const averageValue = (reportList, path) => {
-  return (
+  const avg =
     reportList.reduce((acc, curr) => {
       return acc + getReportProperty(curr, path);
-    }, 0) / reportList.length
-  );
+    }, 0) / reportList.length;
+  if (isNaN(avg)) throw new Error(`Failed to average value for path: ${path}`);
+  return avg;
 };
 
 export { getReportProperty, averageValue };

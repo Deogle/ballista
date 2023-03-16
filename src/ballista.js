@@ -5,6 +5,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { averageValue, getReportProperty } from "./util/utils.js";
 import chromeLauncher from "chrome-launcher";
+import { writeFileSync } from "fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -26,7 +27,7 @@ class Ballista {
     }, {});
 
     this.batchSize = batchSize || 10;
-    this.iterations = iterations || 10;
+    this.iterations = iterations || 5;
     this.metricList = metricList;
     this.outputWriter = outputWriter;
     this.onBatchProcessed = onBatchProcessed;
@@ -62,13 +63,27 @@ class Ballista {
     const processedReport = {};
     for (const metric of this.metricList) {
       processedReport[metric.name] = getReportProperty(rawReport, metric.path);
+      if (isNaN(processedReport[metric.name])) {
+        throw new Error(
+          `Failed to get metric ${metric.name} for ${rawReport.requestedUrl}`
+        );
+      }
     }
     return processedReport;
   }
 
-  handleWorkerSuccess(data) {
-    if (!data.report) throw new Error(`Failed to get report for ${data.url}`);
-    this.reportList[data.url].push(this.processReport(data.report));
+  handleWorkerSuccess({ report, url }) {
+    if (!report) throw new Error(`Failed to get report for ${url}`);
+    if (report.runtimeError) this.handleReportError(report);
+    this.reportList[url].push(this.processReport(report));
+  }
+
+  handleReportError(report) {
+    const { runtimeError, requestedUrl } = report;
+    const { code, message } = runtimeError;
+    throw new Error(
+      `Lighthouse failed to run for ${requestedUrl} with error code ${code}: \n ${message}`
+    );
   }
 
   spawnWorker(url, id) {

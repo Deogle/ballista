@@ -90,12 +90,19 @@ async function main(options) {
   } catch (error) {
     progressBar.stop();
     console.timeEnd(TIMER_ID);
-    console.error(error);
+    console.error(error.message);
   }
+}
+
+async function printHelp() {
+  console.log(`Usage: ballista [options] [command]`);
 }
 
 (async () => {
   const options = commandLineArgs(CMD_OPTIONS);
+
   if (options.version) return await printVersion();
+  if (options.help) return printHelp();
+
   main(options);
 })();

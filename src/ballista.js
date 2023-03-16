@@ -4,6 +4,7 @@ import { Worker } from "worker_threads";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { averageValue, getReportProperty } from "./util/utils.js";
+import chromeLauncher from "chrome-launcher";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,8 +38,9 @@ class Ballista {
     });
   }
 
-  handleReportsProcessed() {
-    const averagedReports = Object.keys(this.reportList).reduce(
+  async handleReportsProcessed() {
+    chromeLauncher.killAll();
+    let averagedReports = Object.keys(this.reportList).reduce(
       (prevObj, url) => {
         prevObj[url] = {};
         return prevObj;
@@ -91,6 +93,7 @@ class Ballista {
       }
     }
     const averagedReports = await this.queue.processQueue();
+
     return { reports: this.reportList, averagedReports };
   }
 }

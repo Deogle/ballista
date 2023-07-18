@@ -1,4 +1,11 @@
-class BatchQueue {
+import { BallistaQueue } from "../ballista.js";
+
+class BatchQueue implements BallistaQueue {
+  queue: Array<()=>Promise<any>>;
+  onExit: () => void;
+  onBatchProcessed: (batch: any) => void;
+  batchSize: number;
+
   constructor({ batchSize, onExit, onBatchProcessed }) {
     this.queue = [];
     this.onExit = onExit;

@@ -15,7 +15,7 @@ const CMD_OPTIONS = [
 ];
 const TIMER_ID = "lighthouse-batch";
 
-function calculateComparison(averagedReports) {
+function calculateComparison(averagedReports: {[x: string]:any}) {
   const key = Object.keys(averagedReports)[0];
   const baselineObject = { [`${key} (baseline)`]: averagedReports[key] };
 
@@ -53,23 +53,20 @@ function calculateComparison(averagedReports) {
 async function printVersion() {
   const { version } = JSON.parse(fs.readFileSync("./package.json", "utf8"));
   console.log(`v${version}`);
-  return;
 }
 
-async function main(options) {
-  if (!options.url) throw new Error("No URLs provided");
+async function main({ url, iterations, comparison }) {
+  if (!url) return printHelp();
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
 
   console.time(TIMER_ID);
-  console.log(
-    `Running ${options.iterations} iteration(s) on ${options.url.length} URLs...`
-  );
-  progressBar.start(options.iterations * options.url.length, progress);
+  console.log(`Running ${iterations} iteration(s) on ${url.length} URLs...`);
+  progressBar.start(iterations * url.length, progress);
 
   const ballistaInstance = new Ballista({
-    urlList: options.url,
-    iterations: options.iterations,
+    urlList: url,
+    iterations: iterations,
     metricList: config,
     onBatchProcessed: (batch) => {
       progress += batch.length;
@@ -78,14 +75,12 @@ async function main(options) {
   });
 
   try {
-    const { averagedReports } = await ballistaInstance.run();
+    const { averagedReports } : {averagedReports: any} = await ballistaInstance.run();
     progressBar.stop();
     console.timeEnd(TIMER_ID);
 
     console.table(
-      options.comparison
-        ? calculateComparison(averagedReports)
-        : averagedReports
+      comparison ? calculateComparison(averagedReports) : averagedReports
     );
   } catch (error) {
     progressBar.stop();
@@ -101,7 +96,7 @@ async function printHelp() {
 (async () => {
   const options = commandLineArgs(CMD_OPTIONS);
 
-  if (options.version) return await printVersion();
+  if (options.version) return printVersion();
   if (options.help) return printHelp();
 
   main(options);

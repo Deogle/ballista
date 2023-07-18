@@ -1,4 +1,4 @@
-const getReportProperty = (json, path) => {
+const getReportProperty = (json: object, path: string) => {
   return path.split(".").reduce((acc, curr) => {
     if (!acc)
       throw new Error(`Failed to index into report: "${curr}" in "${path}`);
@@ -6,7 +6,7 @@ const getReportProperty = (json, path) => {
   }, json);
 };
 
-const averageValue = (reportList, path) => {
+const averageValue = (reportList: object[], path: string) => {
   const avg =
     reportList.reduce((acc, curr) => {
       return acc + getReportProperty(curr, path);

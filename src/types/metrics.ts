@@ -1,3 +1,15 @@
+export interface Metric {
+  name: string;
+  path: string;
+  displayName: string;
+  toString: (value:number) => string;
+  absolutePath?:boolean
+}
+
+type MetricConfig = {
+  [key:string]: Metric
+}
+
 const MetricPaths = Object.freeze({
   PERFORMANCE: "categories.performance.score",
   FIRST_CONTENTFUL_PAINT: "audits.first-contentful-paint.numericValue",
@@ -21,7 +33,7 @@ const MetricNames = Object.freeze({
 const PRECISION = 2;
 const CLS_PRECISION = 5;
 
-const MetricsConfigs = Object.freeze({
+const MetricsConfigs: MetricConfig = {
   [MetricNames.PERFORMANCE]: {
     name: MetricNames.PERFORMANCE,
     path: MetricPaths.PERFORMANCE,
@@ -65,7 +77,7 @@ const MetricsConfigs = Object.freeze({
     displayName: "Largest Contentful Paint (avg)",
     toString: (value) => `${(value / 1000).toFixed(PRECISION)} s`,
   },
-});
+};
 
 const Metrics = Object.freeze({
   PERFORMANCE: MetricsConfigs[MetricNames.PERFORMANCE],

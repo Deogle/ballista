@@ -1,17 +1,40 @@
-import path from "path";
+import path, { dirname } from "path";
+import {Result} from "lighthouse"
 import { BatchQueue } from "./util/batch-queue.js";
 import { Worker } from "worker_threads";
-import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { averageValue, getReportProperty } from "./util/utils.js";
 import chromeLauncher from "chrome-launcher";
-import { writeFileSync } from "fs";
+import { Metric } from "./types/metrics.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const WORKER_PATH = path.join(__dirname, "worker", "lighthouse-worker.js");
 
+export interface BallistaQueue {
+  enqueue: (queueFunc:()=>Promise<void>) => void;
+  processQueue: () => Promise<void>;
+}
+
+type BallistaOptions = {
+  batchSize?: number;
+  urlList: string[];
+  metricList: Metric[]; //Todo: add all metrics
+  iterations?: number;
+  outputWriter?: any; //Add type
+  onBatchProcessed?: (batch: any) => void;
+};
+
 class Ballista {
+  urlList: string[];
+  reportList: object;
+  batchSize: number;
+  iterations: number;
+  metricList: Metric[];
+  outputWriter: any;
+  onBatchProcessed: (batch: any) => void;
+  queue: BallistaQueue;
+
   constructor({
     batchSize,
     urlList,
@@ -19,7 +42,7 @@ class Ballista {
     iterations,
     outputWriter,
     onBatchProcessed,
-  }) {
+  }: BallistaOptions) {
     this.urlList = urlList;
     this.reportList = urlList.reduce((prev, curr) => {
       prev[curr] = [];
@@ -72,7 +95,7 @@ class Ballista {
     return processedReport;
   }
 
-  handleWorkerSuccess({ report, url }) {
+  handleWorkerSuccess({ report, url }:{report:Result,url:string}) {
     if (!report) throw new Error(`Failed to get report for ${url}`);
     if (report.runtimeError) this.handleReportError(report);
     this.reportList[url].push(this.processReport(report));
@@ -86,14 +109,14 @@ class Ballista {
     );
   }
 
-  spawnWorker(url, id) {
+  spawnWorker(url: string, id: number) {
     const workerData = {
       url,
       id: id,
       metricList: this.metricList.map((metric) => metric.path),
     };
 
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       const worker = new Worker(WORKER_PATH, { workerData });
       worker.on("message", (data) => {
         resolve(this.handleWorkerSuccess(data));

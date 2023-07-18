@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "ESNext",
+    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["./src/**/*", "./cli.ts"]
+}

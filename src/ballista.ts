@@ -119,7 +119,8 @@ class Ballista {
     return new Promise<void>((resolve) => {
       const worker = new Worker(WORKER_PATH, { workerData });
       worker.on("message", (data) => {
-        resolve(this.handleWorkerSuccess(data));
+        this.handleWorkerSuccess(data)
+        resolve();
       });
     });
   }

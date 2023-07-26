@@ -3,12 +3,11 @@
   "version": "0.2.5",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
-  "main": "cli.js",
+  "main": "dist/cli.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "ts-node cli.ts",
-    "dev":"ts-node --esm cli"
+    "start": "tsc && node dist/cli.js"
   },
   "author": "Dylan Ogle",
   "license": "MIT",
@@ -16,10 +15,11 @@
     "chrome-launcher": "^0.15.1",
     "cli-progress": "^3.12.0",
     "command-line-args": "^5.2.1",
-    "lighthouse": "^10.0.1"    
+    "lighthouse": "^10.0.1",
+    "vite": "^4.4.6"
   },
   "bin": {
-    "ballista": "cli.js"
+    "ballista": "dist/cli.js"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/Deogle/ballista#readme",
   "devDependencies": {
-    "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   }
 }

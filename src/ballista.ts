@@ -5,7 +5,7 @@ import { Worker } from "worker_threads";
 import { fileURLToPath } from "url";
 import { averageValue, getReportProperty } from "./util/utils.js";
 import chromeLauncher from "chrome-launcher";
-import { Metric } from "./types/metrics.js";
+import { Metric, Metrics } from "./types/metrics.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,7 +19,7 @@ export interface BallistaQueue {
 type BallistaOptions = {
   batchSize?: number;
   urlList: string[];
-  metricList: Metric[]; //Todo: add all metrics
+  metricList?: Metric[];
   iterations?: number;
   outputWriter?: any; //Add type
   onBatchProcessed?: (batch: any) => void;
@@ -51,7 +51,7 @@ class Ballista {
 
     this.batchSize = batchSize || 10;
     this.iterations = iterations || 5;
-    this.metricList = metricList;
+    this.metricList = metricList || Object.values(Metrics);
     this.outputWriter = outputWriter;
     this.onBatchProcessed = onBatchProcessed;
 
@@ -82,13 +82,13 @@ class Ballista {
     return averagedReports;
   }
 
-  processReport(rawReport) {
+  processReport(report:Result) {
     const processedReport = {};
     for (const metric of this.metricList) {
-      processedReport[metric.name] = getReportProperty(rawReport, metric.path);
+      processedReport[metric.name] = getReportProperty(report, metric.path);
       if (isNaN(processedReport[metric.name])) {
         throw new Error(
-          `Failed to get metric ${metric.name} for ${rawReport.requestedUrl}`
+          `Failed to get metric ${metric.name} for ${report.requestedUrl}`
         );
       }
     }
@@ -101,7 +101,7 @@ class Ballista {
     this.reportList[url].push(this.processReport(report));
   }
 
-  handleReportError(report) {
+  handleReportError(report:Result) {
     const { runtimeError, requestedUrl } = report;
     const { code, message } = runtimeError;
     throw new Error(

@@ -1,6 +1,6 @@
 {
   "name": "@deogle/ballista",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
   "main": "dist/cli.js",
@@ -8,9 +8,9 @@
     "test": "mocha",
     "build": "tsc",
     "start": "tsc && node dist/cli.js",
-    "deploy:patch" : "npm version patch && tsc && npm publish",
-    "deploy:minor" : "npm version minor && tsc && npm publish",
-    "deploy:major" : "npm version major && tsc && npm publish"
+    "deploy:patch": "npm version patch && tsc && npm publish",
+    "deploy:minor": "npm version minor && tsc && npm publish",
+    "deploy:major": "npm version major && tsc && npm publish"
   },
   "author": "Dylan Ogle",
   "license": "MIT",

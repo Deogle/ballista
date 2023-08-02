@@ -4,6 +4,8 @@ import commandLineArgs from "command-line-args";
 import cliProgress from "cli-progress";
 import { Ballista } from "./src/ballista.js";
 import { config } from "./src/types/config.js";
+import path, { dirname } from "path";
+
 import fs from "fs";
 
 const CMD_OPTIONS = [
@@ -51,7 +53,7 @@ function calculateComparison(averagedReports: {[x: string]:any}) {
 }
 
 async function printVersion() {
-  const { version } = JSON.parse(fs.readFileSync("../package.json", "utf8"));
+  const { version } = JSON.parse(fs.readFileSync(path.join(dirname(new URL(import.meta.url).pathname), "../package.json"), "utf-8"));
   console.log(`v${version}`);
 }
 

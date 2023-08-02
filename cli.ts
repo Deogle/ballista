@@ -51,7 +51,7 @@ function calculateComparison(averagedReports: {[x: string]:any}) {
 }
 
 async function printVersion() {
-  const { version } = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+  const { version } = JSON.parse(fs.readFileSync("../package.json", "utf8"));
   console.log(`v${version}`);
 }
 

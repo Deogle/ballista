@@ -3,7 +3,7 @@
   "version": "0.3.2",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
-  "main": "dist/cli.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha",
     "build": "tsc",

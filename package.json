@@ -3,7 +3,7 @@
   "version": "0.3.4",
   "description": "A command line tool for running Google Lighthouse tests on a series of URLs and generating a comparative tabular report.",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/ballista.js",
   "scripts": {
     "test": "mocha",
     "build": "tsc",

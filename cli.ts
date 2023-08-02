@@ -14,6 +14,7 @@ const CMD_OPTIONS = [
   { name: "outputDir", alias: "o", type: String },
   { name: "comparison", alias: "c", type: Boolean },
   { name: "version", alias: "v", type: Boolean },
+  { name: "cwd", type: Boolean },
 ];
 const TIMER_ID = "lighthouse-batch";
 
@@ -52,9 +53,14 @@ function calculateComparison(averagedReports: {[x: string]:any}) {
   return comparisonReport;
 }
 
-async function printVersion() {
+function printVersion() {
   const { version } = JSON.parse(fs.readFileSync(path.join(dirname(new URL(import.meta.url).pathname), "../package.json"), "utf-8"));
   console.log(`v${version}`);
+}
+
+function printCwd(){
+  const cwd = process.cwd();
+  console.log(cwd);
 }
 
 async function main({ url, iterations, comparison }) {
@@ -102,6 +108,7 @@ async function printHelp() {
 
   if (options.version) return printVersion();
   if (options.help) return printHelp();
+  if (options.cwd) return printCwd();
 
   main(options);
 })();

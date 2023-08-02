@@ -8,7 +8,9 @@
     "test": "mocha",
     "build": "tsc",
     "start": "tsc && node dist/cli.js",
-    "deploy" : "tsc && npm publish"
+    "deploy:patch" : "npm version patch && tsc && npm publish",
+    "deploy:minor" : "npm version minor && tsc && npm publish",
+    "deploy:major" : "npm version major && tsc && npm publish"
   },
   "author": "Dylan Ogle",
   "license": "MIT",

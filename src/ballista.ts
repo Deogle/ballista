@@ -80,8 +80,6 @@ class Ballista {
       {}
     );
 
-    console.log(this.reportList)
-
     if (this.outputWriter) {
       Object.entries(this.reportList).forEach(([url, report]) => {
         this.outputWriter.write(url,report);

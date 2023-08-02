@@ -60,10 +60,8 @@ async function main({ url, iterations, comparison }) {
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
 
-  console.time(TIMER_ID);
-  console.log(`Running ${iterations} iteration(s) on ${url.length} URLs...`);
-  progressBar.start(iterations * url.length, progress);
-
+  
+  
   const ballistaInstance = new Ballista({
     urlList: url,
     iterations: iterations,
@@ -73,6 +71,10 @@ async function main({ url, iterations, comparison }) {
       progressBar.update(progress);
     },
   });
+  
+  console.time(TIMER_ID);
+  console.log(`Running ${ballistaInstance.iterations} iteration(s) on ${url.length} URLs...`);
+  progressBar.start(ballistaInstance.iterations * url.length, progress);
 
   try {
     const { averagedReports } : {averagedReports: any} = await ballistaInstance.run();

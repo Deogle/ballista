@@ -21,7 +21,7 @@ type BallistaOptions = {
   urlList: string[];
   metricList?: Metric[];
   iterations?: number;
-  outputWriter?: any; //Add type
+  outputWriter?: any; //TODO: Add type
   onBatchProcessed?: (batch: any) => void;
 };
 

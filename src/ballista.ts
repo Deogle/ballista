@@ -1,5 +1,5 @@
 import path, { dirname } from "path";
-import {Result} from "lighthouse"
+import { Result } from "lighthouse";
 import { BatchQueue } from "./util/batch-queue.js";
 import { Worker } from "worker_threads";
 import { fileURLToPath } from "url";
@@ -12,26 +12,33 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const WORKER_PATH = path.join(__dirname, "worker", "lighthouse-worker.js");
 
 export interface BallistaQueue {
-  enqueue: (queueFunc:()=>Promise<void>) => void;
+  enqueue: (queueFunc: () => Promise<void>) => void;
   processQueue: () => Promise<void>;
 }
+
+export interface BallistaOutputWriter {
+  write: (url: string, report: BallistaReport) => void;
+  writeRawReport?: (url: string, report: Result) => void;
+}
+
+type BallistaReport = object[]
 
 type BallistaOptions = {
   batchSize?: number;
   urlList: string[];
   metricList?: Metric[];
   iterations?: number;
-  outputWriter?: any; //TODO: Add type
+  outputWriter?: BallistaOutputWriter;
   onBatchProcessed?: (batch: any) => void;
 };
 
 class Ballista {
   urlList: string[];
-  reportList: object;
+  reportList: {[url:string]: BallistaReport};
   batchSize: number;
   iterations: number;
   metricList: Metric[];
-  outputWriter: any;
+  outputWriter: BallistaOutputWriter;
   onBatchProcessed: (batch: any) => void;
   queue: BallistaQueue;
 
@@ -64,6 +71,7 @@ class Ballista {
 
   async handleReportsProcessed() {
     chromeLauncher.killAll();
+
     let averagedReports = Object.keys(this.reportList).reduce(
       (prevObj, url) => {
         prevObj[url] = {};
@@ -71,6 +79,14 @@ class Ballista {
       },
       {}
     );
+
+    console.log(this.reportList)
+
+    if (this.outputWriter) {
+      Object.entries(this.reportList).forEach(([url, report]) => {
+        this.outputWriter.write(url,report);
+      });
+    }
 
     for (const metric of this.metricList) {
       Object.entries(this.reportList).forEach(([url, report]) => {
@@ -82,7 +98,8 @@ class Ballista {
     return averagedReports;
   }
 
-  processReport(report:Result) {
+  processReport(report: Result) {
+    if(this.outputWriter && this.outputWriter.writeRawReport) this.outputWriter.writeRawReport(report.requestedUrl,report);
     const processedReport = {};
     for (const metric of this.metricList) {
       processedReport[metric.name] = getReportProperty(report, metric.path);
@@ -95,13 +112,13 @@ class Ballista {
     return processedReport;
   }
 
-  handleWorkerSuccess({ report, url }:{report:Result,url:string}) {
+  handleWorkerSuccess({ report, url }: { report: Result; url: string }) {
     if (!report) throw new Error(`Failed to get report for ${url}`);
     if (report.runtimeError) this.handleReportError(report);
     this.reportList[url].push(this.processReport(report));
   }
 
-  handleReportError(report:Result) {
+  handleReportError(report: Result) {
     const { runtimeError, requestedUrl } = report;
     const { code, message } = runtimeError;
     throw new Error(
@@ -119,7 +136,7 @@ class Ballista {
     return new Promise<void>((resolve) => {
       const worker = new Worker(WORKER_PATH, { workerData });
       worker.on("message", (data) => {
-        this.handleWorkerSuccess(data)
+        this.handleWorkerSuccess(data);
         resolve();
       });
     });

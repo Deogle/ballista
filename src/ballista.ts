@@ -29,6 +29,7 @@ type BallistaOptions = {
   metricList?: Metric[];
   iterations?: number;
   outputWriter?: BallistaOutputWriter;
+  isDesktopMode?: boolean;
   onBatchProcessed?: (batch: any) => void;
 };
 
@@ -41,6 +42,7 @@ class Ballista {
   outputWriter: BallistaOutputWriter;
   onBatchProcessed: (batch: any) => void;
   queue: BallistaQueue;
+  isDesktopMode: boolean;
 
   constructor({
     batchSize,
@@ -48,6 +50,7 @@ class Ballista {
     metricList,
     iterations,
     outputWriter,
+    isDesktopMode,
     onBatchProcessed,
   }: BallistaOptions) {
     this.urlList = urlList;
@@ -56,11 +59,12 @@ class Ballista {
       return prev;
     }, {});
 
-    this.batchSize = batchSize || 10;
+    this.batchSize = batchSize || 1;
     this.iterations = iterations || 5;
     this.metricList = metricList || Object.values(Metrics);
     this.outputWriter = outputWriter;
     this.onBatchProcessed = onBatchProcessed;
+    this.isDesktopMode = isDesktopMode;
 
     this.queue = new BatchQueue({
       batchSize: this.batchSize,
@@ -129,6 +133,7 @@ class Ballista {
       url,
       id: id,
       metricList: this.metricList.map((metric) => metric.path),
+      isDesktopMode: this.isDesktopMode,
     };
 
     return new Promise<void>((resolve) => {

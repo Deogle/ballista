@@ -14,11 +14,12 @@ const CMD_OPTIONS = [
   { name: "outputDir", alias: "o", type: String },
   { name: "comparison", alias: "c", type: Boolean },
   { name: "version", alias: "v", type: Boolean },
+  { name: "desktop", alias: "d", type: Boolean },
   { name: "cwd", type: Boolean },
 ];
 const TIMER_ID = "lighthouse-batch";
 
-function calculateComparison(averagedReports: {[x: string]:any}) {
+function calculateComparison(averagedReports: { [x: string]: any }) {
   const key = Object.keys(averagedReports)[0];
   const baselineObject = { [`${key} (baseline)`]: averagedReports[key] };
 
@@ -54,38 +55,45 @@ function calculateComparison(averagedReports: {[x: string]:any}) {
 }
 
 function printVersion() {
-  const { version } = JSON.parse(fs.readFileSync(path.join(dirname(new URL(import.meta.url).pathname), "../package.json"), "utf-8"));
+  const { version } = JSON.parse(
+    fs.readFileSync(
+      path.join(dirname(new URL(import.meta.url).pathname), "../package.json"),
+      "utf-8"
+    )
+  );
   console.log(`v${version}`);
 }
 
-function printCwd(){
+function printCwd() {
   const cwd = process.cwd();
   console.log(cwd);
 }
 
-async function main({ url, iterations, comparison }) {
+async function main({ url, iterations, desktop, comparison }) {
   if (!url) return printHelp();
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
 
-  
-  
   const ballistaInstance = new Ballista({
     urlList: url,
     iterations: iterations,
     metricList: config,
+    isDesktopMode: desktop,
     onBatchProcessed: (batch) => {
       progress += batch.length;
       progressBar.update(progress);
     },
   });
-  
+
   console.time(TIMER_ID);
-  console.log(`Running ${ballistaInstance.iterations} iteration(s) on ${url.length} URLs...`);
+  console.log(
+    `Running ${ballistaInstance.iterations} iteration(s) on ${url.length} URL(s)...`
+  );
   progressBar.start(ballistaInstance.iterations * url.length, progress);
 
   try {
-    const { averagedReports } : {averagedReports: any} = await ballistaInstance.run();
+    const { averagedReports }: { averagedReports: any } =
+      await ballistaInstance.run();
     progressBar.stop();
     console.timeEnd(TIMER_ID);
 

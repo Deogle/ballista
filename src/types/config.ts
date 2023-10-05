@@ -1,6 +1,7 @@
 import { Metrics } from "./metrics.js";
 
 const defaultConfig = [
+  Metrics.ACCESSIBILITY,
   Metrics.PERFORMANCE,
   Metrics.FIRST_CONTENTFUL_PAINT,
   Metrics.LARGEST_CONTENTFUL_PAINT,

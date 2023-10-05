@@ -11,6 +11,7 @@ type MetricConfig = {
 }
 
 const MetricPaths = Object.freeze({
+  ACCESSIBILITY: 'categories.accessibility.score',
   PERFORMANCE: "categories.performance.score",
   FIRST_CONTENTFUL_PAINT: "audits.first-contentful-paint.numericValue",
   FIRST_MEANINGFUL_PAINT: "audits.first-meaningful-paint.numericValue",
@@ -21,6 +22,7 @@ const MetricPaths = Object.freeze({
 });
 
 const MetricNames = Object.freeze({
+  ACCESSIBILITY: 'accessibility',
   PERFORMANCE: "performance",
   FIRST_CONTENTFUL_PAINT: "first-contentful-paint",
   FIRST_MEANINGFUL_PAINT: "first-meaningful-paint",
@@ -34,6 +36,13 @@ const PRECISION = 2;
 const CLS_PRECISION = 5;
 
 const MetricsConfigs: MetricConfig = {
+  [MetricNames.ACCESSIBILITY]:{
+    name: MetricNames.ACCESSIBILITY,
+    path: MetricPaths.ACCESSIBILITY,
+    displayName: "Accessibility Score (avg)",
+    toString: (value) => `${(value * 100).toFixed(0)}`,
+    absolutePath: true
+  },
   [MetricNames.PERFORMANCE]: {
     name: MetricNames.PERFORMANCE,
     path: MetricPaths.PERFORMANCE,
@@ -80,6 +89,7 @@ const MetricsConfigs: MetricConfig = {
 };
 
 const Metrics = Object.freeze({
+  ACCESSIBILITY: MetricsConfigs[MetricNames.ACCESSIBILITY],
   PERFORMANCE: MetricsConfigs[MetricNames.PERFORMANCE],
   FIRST_CONTENTFUL_PAINT: MetricsConfigs[MetricNames.FIRST_CONTENTFUL_PAINT],
   FIRST_MEANINGFUL_PAINT: MetricsConfigs[MetricNames.FIRST_MEANINGFUL_PAINT],

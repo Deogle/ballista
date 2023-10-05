@@ -4,7 +4,7 @@
     "allowJs": false,
     "target": "ESNext",
     "moduleResolution": "NodeNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "allowSyntheticDefaultImports": true,
     "declaration": true
   },

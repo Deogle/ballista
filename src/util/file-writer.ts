@@ -17,7 +17,7 @@ class FileWriter implements BallistaOutputWriter {
   }
 
   #buildUrl(url:string){
-    const sanitizedUrl = url.replaceAll('/','-')
+    const sanitizedUrl = url.replace(/(^\w+:|^)\/\//, '').replaceAll('/','-');
     const filename = `${sanitizedUrl}.json`
     return path.join(this.directoryName,filename) 
   }

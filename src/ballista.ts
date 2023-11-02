@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { averageValue, getReportProperty } from "./util/utils.js";
 import chromeLauncher from "chrome-launcher";
 import { Metric, Metrics } from "./types/metrics.js";
+import { v4 as uuidv4 } from "uuid";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +22,7 @@ export interface BallistaOutputWriter {
   writeRawReport?: (url: string, report: Result) => void;
 }
 
-type BallistaReport = object[]
+type BallistaReport = object[];
 
 type BallistaOptions = {
   batchSize?: number;
@@ -35,7 +36,7 @@ type BallistaOptions = {
 
 class Ballista {
   urlList: string[];
-  reportList: {[url:string]: BallistaReport};
+  reportList: { [url: string]: BallistaReport };
   batchSize: number;
   iterations: number;
   metricList: Metric[];
@@ -86,7 +87,7 @@ class Ballista {
 
     if (this.outputWriter) {
       Object.entries(this.reportList).forEach(([url, report]) => {
-        this.outputWriter.write(url,report);
+        this.outputWriter.write(url, report);
       });
     }
 
@@ -101,7 +102,10 @@ class Ballista {
   }
 
   processReport(report: Result) {
-    if(this.outputWriter && this.outputWriter.writeRawReport) this.outputWriter.writeRawReport(report.requestedUrl,report);
+    if (this.outputWriter) {
+      const url = `${report.requestedUrl}-${uuidv4()}`;
+      this.outputWriter.writeRawReport(url,report);
+    }
     const processedReport = {};
     for (const metric of this.metricList) {
       processedReport[metric.name] = getReportProperty(report, metric.path);

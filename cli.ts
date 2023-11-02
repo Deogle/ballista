@@ -7,6 +7,7 @@ import { config } from "./src/types/config.js";
 import path, { dirname } from "path";
 
 import fs from "fs";
+import FileWriter from "./src/util/file-writer.js";
 
 const CMD_OPTIONS = [
   { name: "url", alias: "u", multiple: true, type: String },
@@ -69,16 +70,18 @@ function printCwd() {
   console.log(cwd);
 }
 
-async function main({ url, iterations, desktop, comparison }) {
+async function main({ url, iterations, desktop, comparison, outputDir}) {
   if (!url) return printHelp();
   const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.legacy);
   let progress = 0;
+
 
   const ballistaInstance = new Ballista({
     urlList: url,
     iterations: iterations,
     metricList: config,
     isDesktopMode: desktop,
+    outputWriter: outputDir && new FileWriter({directoryName:outputDir}),
     onBatchProcessed: (batch) => {
       progress += batch.length;
       progressBar.update(progress);
